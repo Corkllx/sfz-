@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>身份证信息提取管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 15px;
+            padding: 5px 0;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 10px 5px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .input-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .input-area:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349, #f45c43);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .result-display {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            min-height: 60px;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .result-display.has-content {
+            border-style: solid;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .id-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .id-card-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .id-card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .id-card-label {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .copy-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .copy-btn-small {
+            flex: 1;
+            padding: 6px 8px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .copy-btn-small:hover {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 20px 10px;
+            font-size: 0.85rem;
+        }
+
+        .empty-state-icon {
+            font-size: 2rem;
+            margin-bottom: 4px;
+            opacity: 0.5;
+        }
+
+        .storage-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+        }
+
+        .storage-item:hover {
+            background: #f8f9fa;
+        }
+
+        .storage-item-info {
+            flex: 1;
+        }
+
+        .storage-item-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .storage-item-id {
+            font-family: monospace;
+            color: #667eea;
+            font-size: 0.8rem;
+        }
+
+        .storage-item-status {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-used {
+            background: #ffebee;
+            color: #c62828;
+            text-decoration: line-through;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .mini-btn {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .mini-btn:hover {
+            background: #bbdefb;
+        }
+
+        .pattern-hint {
+            background: #fff3e0;
+            border-left: 3px solid #ff9800;
+            padding: 6px 10px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            color: #e65100;
+        }
+
+        .pattern-hint code {
+            background: rgba(255,255,255,0.6);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.75rem;
+        }
+
+        .warning-box {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            padding: 8px 10px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+        }
+
+        .toast {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translateX(300px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border-left: 3px solid;
+            font-size: 0.85rem;
+        }
+
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left-color: #38ef7d; }
+        .toast.error { border-left-color: #f45c43; }
+        .toast.info { border-left-color: #667eea; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-icon { font-size: 3rem; margin-bottom: 10px; }
+        .modal-title { font-size: 1.2rem; margin-bottom: 8px; }
+        .modal-content { color: #666; margin-bottom: 15px; font-size: 0.9rem; }
+
+        .export-section {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .two-col { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.3rem; }
+        }
+
+        .age-info {
+            font-size: 0.75rem;
+            color: #ff9800;
+            margin-top: 4px;
+        }
+
+        .skip-info {
+            background: #ffebee;
+            color: #c62828;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🆔 身份证信息提取系统</h1>
+            <p>智能提取 · 年龄过滤 · 一键复制 · 用完即焚</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">总提取</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="availableCount">0</div>
+                <div class="stat-label">可用</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="usedCount">0</div>
+                <div class="stat-label">已使用</div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <!-- 提取区域 -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">📥</div>
+                    信息提取
+                </div>
+
+                <div class="pattern-hint">
+                    <strong>💡 支持格式：</strong>
+                    <code>张三 110101200801011234</code>（未满18岁将自动跳过）
+                </div>
+
+                <textarea class="input-area" id="inputText" placeholder="粘贴聊天记录...&#10;张三：我的身份证是110101199001011234&#10;李四 110101200801011235（未成年，跳过）"></textarea>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="extractIDs()">🔍 提取</button>
+                    <button class="btn btn-secondary" onclick="clearInput()">🗑️ 清空</button>
+                </div>
+
+                <div class="result-display" id="extractResult">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div>提取结果</div>
+                    </div>
+                </div>
+
+                <div class="export-section">
+                    <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 10px;" onclick="exportToCSV()">📊 导出全部</button>
+                    <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 10px;" onclick="exportAvailableToCSV()">📗 导出可用</button>
+                </div>
+            </div>
+
+            <!-- 获取区域 -->
+            <div class="card">
+                <div class="card-title">
+                    <div class="icon">📤</div>
+                    获取信息
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ 用完即焚：</strong>获取后自动失效，不可再次获取
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-success" id="getOneBtn" onclick="getOneID()">🎲 获取一个</button>
+                    <button class="btn btn-danger" onclick="clearAll()">💥 清空</button>
+                </div>
+
+                <div class="result-display" id="displayResult">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👆</div>
+                        <div>点击获取</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 存储列表 -->
+        <div class="card">
+            <div class="card-title">
+                <div class="icon">🗄️</div>
+                存储仓库
+                <button class="mini-btn" onclick="copyAllToClipboard()" style="margin-left: auto;">📋 复制全部</button>
+            </div>
+
+            <div class="storage-list" id="storageList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <div>暂无数据</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">操作成功</span>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <div class="modal-title" id="modalTitle">确认操作</div>
+            <div class="modal-content" id="modalContent">确定要执行此操作吗？</div>
+            <div class="button-group" style="justify-content: center;">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-danger" id="modalConfirmBtn" onclick="confirmAction()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享链接弹窗 -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal">
+            <div class="modal-icon">🔗</div>
+            <div class="modal-title">分享这条信息</div>
+            <div class="modal-content" style="text-align:left;">
+                <div style="background:#f8f9fa;border-radius:8px;padding:10px;margin-bottom:10px;font-size:0.85rem;">
+                    <div><b>姓名：</b><span id="shareName"></span></div>
+                    <div style="font-family:monospace;color:#667eea;margin-top:4px;"><b>身份证：</b><span id="shareId"></span></div>
+                </div>
+                <input type="text" id="shareLinkInput" readonly
+                    style="width:100%;padding:8px;border:2px solid #e0e0e0;border-radius:6px;font-size:0.75rem;font-family:monospace;word-break:break-all;"
+                    onclick="this.select();">
+                <div style="font-size:0.7rem;color:#999;margin-top:6px;line-height:1.5;">
+                    💡 把链接发给对方，对方打开后可直接复制姓名和身份证号。<br>
+                    部分聊天软件可能拦截 data 链接，此时让对方复制链接到浏览器地址栏打开即可。
+                </div>
+            </div>
+            <div class="button-group" style="justify-content:center;">
+                <button class="btn btn-secondary" onclick="closeShareModal()">关闭</button>
+                <button class="btn btn-primary" id="copyShareBtn" onclick="copyShareLink()">📋 复制链接</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'id_card_database_v2';
+
+        function loadDatabase() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) { return []; }
+        }
+
+        function saveDatabase() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(idDatabase));
+        }
+
+        let idDatabase = loadDatabase();
+        let pendingAction = null;
+
+        // 计算年龄（周岁）
+        function calculateAge(idNumber) {
+            if (!idNumber || idNumber.length !== 18) return null;
+
+            const birthYear = parseInt(idNumber.substring(6, 10));
+            const birthMonth = parseInt(idNumber.substring(10, 12));
+            const birthDay = parseInt(idNumber.substring(12, 14));
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth() + 1;
+            const currentDay = today.getDate();
+
+            let age = currentYear - birthYear;
+
+            // 如果今年生日还没到，减一岁
+            if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDay < birthDay)) {
+                age--;
+            }
+
+            return age;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+
+            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+            toast.className = `toast ${type}`;
+            icon.textContent = icons[type] || '✅';
+            msg.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        function updateStats() {
+            const total = idDatabase.length;
+            const available = idDatabase.filter(item => !item.used).length;
+            const used = idDatabase.filter(item => item.used).length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('availableCount').textContent = available;
+            document.getElementById('usedCount').textContent = used;
+            document.getElementById('getOneBtn').disabled = available === 0;
+        }
+
+        function updateStorageList() {
+            const list = document.getElementById('storageList');
+
+            if (idDatabase.length === 0) {
+                list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>暂无数据</div></div>`;
+                return;
+            }
+
+            list.innerHTML = idDatabase.map((item) => `
+                <div class="storage-item" style="${item.used ? 'opacity: 0.5;' : ''}">
+                    <div class="storage-item-info">
+                        <div class="storage-item-name">${item.name} <span style="color:#999;font-size:0.7rem;">(${item.age}岁)</span></div>
+                        <div class="storage-item-id">${item.id}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="storage-item-status ${item.used ? 'status-used' : 'status-active'}">${item.used ? '已失效' : '可用'}</span>
+                        <div class="item-actions">
+                            <button class="mini-btn" onclick="copyItem('${item.id}', 'name')">📋姓名</button>
+                            <button class="mini-btn" onclick="copyItem('${item.id}', 'id')">📋身份证</button>
+                            <button class="mini-btn" onclick="shareRecord('${item.name}', '${item.id}')">🔗分享</button>
+                            ${!item.used ? `<button class="mini-btn" onclick="copyItem('${item.id}', 'both')">📋全部</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 复制单个项目
+        function copyItem(id, type) {
+            const item = idDatabase.find(i => i.id === id);
+            if (!item) return;
+
+            let text = '';
+            if (type === 'name') text = item.name;
+            else if (type === 'id') text = item.id;
+            else if (type === 'both') text = `${item.name}\t${item.id}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制到剪贴板');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('已复制到剪贴板');
+            });
+        }
+
+        function extractName(text, idNumber, usedNames) {
+            const cleanText = text.replace(/\s+/g, ' ').trim();
+            const beforeId = cleanText.substring(0, cleanText.indexOf(idNumber)).trim();
+
+            const nameMatch1 = beforeId.match(/[\u4e00-\u9fa5]{2,4}(?=\s*[：:，,\s]\s*$)/);
+            if (nameMatch1 && !usedNames.has(nameMatch1[0])) return nameMatch1[0];
+
+            const afterId = cleanText.substring(cleanText.indexOf(idNumber) + idNumber.length).trim();
+            const nameMatch2 = afterId.match(/^\s*[：:，,]*([\u4e00-\u9fa5]{2,4})/);
+            if (nameMatch2 && !usedNames.has(nameMatch2[1])) return nameMatch2[1];
+
+            const lineMatch = cleanText.match(/^([\u4e00-\u9fa5]{2,4})\s*[：:]\s*.*?\d{17}[\dXx]/);
+            if (lineMatch && !usedNames.has(lineMatch[1])) return lineMatch[1];
+
+            const parts = beforeId.split(/[\s：:，,]+/).filter(p => p.length >= 2 && p.length <= 4 && /^[\u4e00-\u9fa5]+$/.test(p));
+            if (parts.length > 0 && !usedNames.has(parts[parts.length - 1])) return parts[parts.length - 1];
+
+            const allNames = cleanText.match(/[\u4e00-\u9fa5]{2,4}/g) || [];
+            for (let name of allNames) {
+                if (!usedNames.has(name) && !['身份证','身份','证号','姓名'].includes(name)) return name;
+            }
+            return null;
+        }
+
+        function extractIDs() {
+            const input = document.getElementById('inputText').value.trim();
+            if (!input) {
+                showToast('请先输入聊天记录', 'error');
+                return;
+            }
+
+            const idPattern = /\d{17}[\dXx]/g;
+            const matches = input.match(idPattern) || [];
+
+            if (matches.length === 0) {
+                showToast('未找到有效的身份证号码', 'error');
+                return;
+            }
+
+            const lines = input.split(/\n/);
+            const extracted = [];
+            const skipped = [];
+            const usedNames = new Set();
+            const usedIds = new Set(idDatabase.map(item => item.id));
+
+            lines.forEach(line => {
+                const lineMatches = line.match(idPattern) || [];
+                lineMatches.forEach(id => {
+                    if (usedIds.has(id)) return;
+
+                    const age = calculateAge(id);
+                    if (age === null) return;
+
+                    // 未满18岁跳过
+                    if (age < 18) {
+                        const name = extractName(line, id, usedNames) || `未知_${id.substr(-4)}`;
+                        skipped.push({ name, id, age });
+                        return;
+                    }
+
+                    const name = extractName(line, id, usedNames);
+                    if (name) {
+                        usedNames.add(name);
+                        usedIds.add(id);
+                        extracted.push({ 
+                            name, 
+                            id, 
+                            age,
+                            used: false, 
+                            timestamp: new Date().toLocaleString('zh-CN') 
+                        });
+                    } else {
+                        extracted.push({ 
+                            name: `未知_${id.substr(-4)}`, 
+                            id, 
+                            age,
+                            used: false, 
+                            timestamp: new Date().toLocaleString('zh-CN') 
+                        });
+                    }
+                });
+            });
+
+            const newItems = extracted.filter(item => !idDatabase.some(db => db.id === item.id));
+            idDatabase = [...idDatabase, ...newItems];
+            saveDatabase();
+
+            const resultDiv = document.getElementById('extractResult');
+            let html = '';
+
+            if (newItems.length > 0) {
+                resultDiv.classList.add('has-content');
+                html += newItems.map(item => `
+                    <div class="id-card">
+                        <div class="id-card-label">姓名 · ${item.age}岁</div>
+                        <div class="id-card-name">${item.name}</div>
+                        <div class="id-card-label" style="margin-top:6px;">身份证号</div>
+                        <div class="id-card-number">${item.id}</div>
+                        <div class="copy-row">
+                            <button class="copy-btn-small" onclick="copyItem('${item.id}', 'name')">📋 复制姓名</button>
+                            <button class="copy-btn-small" onclick="copyItem('${item.id}', 'id')">📋 复制身份证</button>
+                            <button class="copy-btn-small" onclick="copyItem('${item.id}', 'both')">📋 复制全部</button>
+                            <button class="copy-btn-small" style="background:rgba(255,255,255,0.35);font-weight:700;" onclick="shareRecord('${item.name}', '${item.id}')">🔗 分享</button>
+                        </div>
+                    </div>
+                `).join('');
+                html += `<div style="text-align:center;color:#667eea;font-size:0.85rem;margin-top:6px;">成功提取 ${newItems.length} 条</div>`;
+                showToast(`成功提取 ${newItems.length} 条，跳过 ${skipped.length} 条未成年`);
+            } else {
+                resultDiv.classList.add('has-content');
+                html = `<div style="text-align:center;color:#999;padding:10px;font-size:0.85rem;">未找到新记录</div>`;
+                if (skipped.length > 0) {
+                    showToast(`跳过 ${skipped.length} 条未成年记录`, 'info');
+                } else {
+                    showToast('未找到新的身份证信息', 'info');
+                }
+            }
+
+            // 显示跳过的未成年记录
+            if (skipped.length > 0) {
+                html += `<div class="skip-info">⚠️ 已跳过 ${skipped.length} 条未成年记录（未满18岁）：${skipped.map(s => s.name).join('、')}</div>`;
+            }
+
+            resultDiv.innerHTML = html;
+            updateStats();
+            updateStorageList();
+        }
+
+        function getOneID() {
+            const available = idDatabase.filter(item => !item.used);
+            if (available.length === 0) {
+                showToast('没有可用的身份证信息了', 'error');
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * available.length);
+            const selected = available[randomIndex];
+
+            const dbIndex = idDatabase.findIndex(item => item.id === selected.id);
+            if (dbIndex !== -1) {
+                idDatabase[dbIndex].used = true;
+                idDatabase[dbIndex].usedAt = new Date().toLocaleString('zh-CN');
+                saveDatabase();
+            }
+
+            const resultDiv = document.getElementById('displayResult');
+            resultDiv.classList.add('has-content');
+            resultDiv.innerHTML = `
+                <div class="id-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                    <div class="id-card-label">已获取 · ${selected.age}岁（即将失效）</div>
+                    <div class="id-card-name">${selected.name}</div>
+                    <div class="id-card-label" style="margin-top:6px;">身份证号</div>
+                    <div class="id-card-number">${selected.id}</div>
+                    <div class="copy-row">
+                        <button class="copy-btn-small" onclick="navigator.clipboard.writeText('${selected.name}')">📋 复制姓名</button>
+                        <button class="copy-btn-small" onclick="navigator.clipboard.writeText('${selected.id}')">📋 复制身份证</button>
+                        <button class="copy-btn-small" onclick="navigator.clipboard.writeText('${selected.name}\t${selected.id}')">📋 复制全部</button>
+                        <button class="copy-btn-small" style="background:rgba(255,255,255,0.35);font-weight:700;" onclick="shareRecord('${selected.name}', '${selected.id}')">🔗 分享</button>
+                    </div>
+                </div>
+                <div style="background:#fff3e0;border-radius:6px;padding:8px;text-align:center;color:#e65100;font-size:0.8rem;">
+                    ⚠️ 此信息已失效，无法再次获取
+                </div>
+            `;
+
+            updateStats();
+            updateStorageList();
+            showToast(`已获取：${selected.name} ${selected.age}岁`);
+        }
+
+        function clearInput() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('extractResult').innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div>提取结果</div></div>`;
+            document.getElementById('extractResult').classList.remove('has-content');
+        }
+
+        function clearAll() {
+            if (idDatabase.length === 0) {
+                showToast('数据库已经是空的', 'info');
+                return;
+            }
+
+            pendingAction = () => {
+                idDatabase = [];
+                saveDatabase();
+                updateStats();
+                updateStorageList();
+                document.getElementById('displayResult').innerHTML = `<div class="empty-state"><div class="empty-state-icon">👆</div><div>点击获取</div></div>`;
+                document.getElementById('displayResult').classList.remove('has-content');
+                closeModal();
+                showToast('已清空所有数据');
+            };
+
+            document.getElementById('modalIcon').textContent = '🗑️';
+            document.getElementById('modalTitle').textContent = '确认清空';
+            document.getElementById('modalContent').textContent = `确定要清空所有 ${idDatabase.length} 条记录吗？此操作不可恢复！`;
+            document.getElementById('modalConfirmBtn').className = 'btn btn-danger';
+            document.getElementById('modalConfirmBtn').textContent = '确认清空';
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            pendingAction = null;
+        }
+
+        function confirmAction() {
+            if (pendingAction) pendingAction();
+        }
+
+        function exportToCSV() {
+            if (idDatabase.length === 0) {
+                showToast('没有数据可导出', 'error');
+                return;
+            }
+
+            const headers = ['姓名', '身份证号', '年龄', '状态', '提取时间', '使用时间'];
+            const rows = idDatabase.map(item => [
+                item.name, item.id, item.age,
+                item.used ? '已失效' : '可用',
+                item.timestamp || '', item.usedAt || ''
+            ]);
+
+            const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `身份证信息_${new Date().toLocaleDateString('zh-CN')}.csv`;
+            link.click();
+            showToast('导出成功');
+        }
+
+        function exportAvailableToCSV() {
+            const available = idDatabase.filter(item => !item.used);
+            if (available.length === 0) {
+                showToast('没有可用数据可导出', 'error');
+                return;
+            }
+
+            const headers = ['姓名', '身份证号', '年龄', '提取时间'];
+            const rows = available.map(item => [item.name, item.id, item.age, item.timestamp || '']);
+
+            const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `可用身份证信息_${new Date().toLocaleDateString('zh-CN')}.csv`;
+            link.click();
+            showToast('导出可用数据成功');
+        }
+
+        function copyAllToClipboard() {
+            if (idDatabase.length === 0) {
+                showToast('没有数据可复制', 'error');
+                return;
+            }
+
+            const text = idDatabase.map(item => 
+                `${item.name}\t${item.id}\t${item.age}岁\t${item.used ? '已失效' : '可用'}`
+            ).join('\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('已复制全部到剪贴板');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('已复制全部到剪贴板');
+            });
+        }
+
+        // ========== 分享链接 ==========
+        function shareRecord(name, id) {
+            // 生成自包含的查看页面（data URI，无需服务器）
+            const viewer = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">'
+                + '<meta name="viewport" content="width=device-width,initial-scale=1.0"><title>身份证信息</title>'
+                + '<style>body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;'
+                + 'background:linear-gradient(135deg,#667eea,#764ba2);margin:0;min-height:100vh;'
+                + 'display:flex;align-items:center;justify-content:center;padding:20px}'
+                + '.card{background:#fff;border-radius:16px;padding:28px;max-width:400px;width:100%;'
+                + 'box-shadow:0 10px 40px rgba(0,0,0,.3);text-align:center}'
+                + 'h2{margin:0 0 18px;color:#333;font-size:1.2rem}'
+                + '.info{background:#f8f9fa;border-radius:12px;padding:16px;margin-bottom:14px;text-align:left}'
+                + '.row{margin:10px 0;font-size:1.05rem;color:#333;word-break:break-all}'
+                + '.row b{color:#667eea}'
+                + 'button{width:100%;padding:13px;margin-top:8px;border:none;border-radius:10px;'
+                + 'font-size:1rem;font-weight:600;cursor:pointer;color:#fff}'
+                + '.b1{background:linear-gradient(135deg,#667eea,#764ba2)}'
+                + '.b2{background:linear-gradient(135deg,#11998e,#38ef7d)}'
+                + '.b3{background:linear-gradient(135deg,#eb3349,#f45c43)}'
+                + '.tip{font-size:.75rem;color:#999;margin-top:14px}</style></head><body>'
+                + '<div class="card"><h2>🪪 身份证信息</h2>'
+                + '<div class="info">'
+                + '<div class="row"><b>姓名：</b>' + name + '</div>'
+                + '<div class="row"><b>身份证：</b>' + id + '</div>'
+                + '</div>'
+                + '<button class="b1" onclick="cp(\'' + name + '\')">📋 复制姓名</button>'
+                + '<button class="b2" onclick="cp(\'' + id + '\')">📋 复制身份证号</button>'
+                + '<button class="b3" onclick="cp(\'' + name + ' ' + id + '\')">📋 复制全部</button>'
+                + '<div class="tip">请妥善保管，勿随意转发</div></div>'
+                + '<scr' + 'ipt>function cp(t){'
+                + 'if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){ok()})}'
+                + 'else{var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();'
+                + 'document.execCommand("copy");ta.remove();ok()}'
+                + 'function ok(){var d=document.createElement("div");d.textContent="✅ 已复制";'
+                + 'd.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);'
+                + 'background:rgba(0,0,0,.8);color:#fff;padding:10px 24px;border-radius:24px;z-index:99;";'
+                + 'document.body.appendChild(d);setTimeout(function(){d.remove()},1500)}}</scr' + 'ipt></body></html>';
+
+            const link = 'data:text/html;base64,' + btoa(unescape(encodeURIComponent(viewer)));
+            document.getElementById('shareName').textContent = name;
+            document.getElementById('shareId').textContent = id;
+            document.getElementById('shareLinkInput').value = link;
+            document.getElementById('shareModal').classList.add('active');
+            // 自动复制链接到剪贴板
+            copyTextFallback(link, '分享链接已生成并复制，可直接粘贴发送');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+        }
+
+        function copyShareLink() {
+            const link = document.getElementById('shareLinkInput').value;
+            copyTextFallback(link, '分享链接已复制');
+        }
+
+        function copyTextFallback(text, msg) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => showToast(msg));
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast(msg);
+            }
+        }
+
+        document.getElementById('shareModal').addEventListener('click', function(e) {
+            if (e.target === this) closeShareModal();
+        });
+
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        updateStats();
+        updateStorageList();
+    </script>
+</body>
+</html>
